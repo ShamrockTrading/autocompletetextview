@@ -1,11 +1,11 @@
 {
   "name": "rn-android-autocompletetextview",
-  "version": "2.0.18",
+  "version": "3.0.0",
   "description": "A Native Ui Component of Android",
   "main": "index.js",
   "peerDependencies": {
-    "react": "16.9.0",
-    "react-native": "0.61.5"
+    "react": "17.x",
+    "react-native": "0.64.x"
   },
   "devDependencies": {
     "babel-jest": "20.0.3",
