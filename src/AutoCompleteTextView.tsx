@@ -1,57 +1,64 @@
 import React, {useState, useEffect, FunctionComponent} from 'react';
 import {View, NativeEventEmitter, requireNativeComponent} from 'react-native';
 
-// const RNAutoCompleteTextView = requireNativeComponent('RNAutoCompleteTextView');
-
 interface NativeProps {
   dataSource: string[];
   itemFormat: string;
   value: string;
   onChangeText?: Function;
   onFocus: Function;
+  onBlur: Function;
   showDropDown: boolean;
   hint?: string;
   onItemClick: Function;
+  forwardedRef: any;
 }
 
 const AutoCompleteTextView: FunctionComponent<NativeProps & View> = (props) => {
   const eventEmitter = new NativeEventEmitter(RNAutoCompleteTextView);
-  const {dataSource, itemFormat, ...rest} = props;
+  const {dataSource, itemFormat, forwardedRef, ...rest} = props;
   const data = {dataSource: JSON.stringify(dataSource), itemFormat};
   const [lastValue, setLastValue] = useState(false);
-
-  // const _setNativeRef = setAndForwardRef({
-  //   getForwardedRef: () => forwardedRef,
-  //   setLocalRef: (ref) => {
-  //     inputRef.current = ref;
-  //   },
-  // });
+  const [mostRecentEventCount, setMostRecentEventCount] = useState(0);
 
   useEffect(() => {
-    eventEmitter.addListener('onItemClick', props.onItemClick);
-    return () => eventEmitter.removeListener('onItemClick', props.onItemClick);
+    const subscription = eventEmitter.addListener('onItemClick', props.onItemClick);
+    return () => subscription.remove();
   }, [props.onItemClick]);
 
   useEffect(() => {
-    eventEmitter.addListener('onFocus', props.onFocus);
-    return () => eventEmitter.removeListener('onFocus', props.onFocus);
+    const subscription = eventEmitter.addListener('onFocus', props.onFocus);
+    return () => subscription.remove();
   }, [props.onFocus]);
+
+  useEffect(() => {
+    const subscription = eventEmitter.addListener('onBlur', props.onBlur);
+    return () => subscription.remove();
+  }, [props.onBlur]);
 
   const onChange = (event: Event) => {
     if (!props.onChangeText || lastValue === event.nativeEvent.text) {
       return;
     }
+    setMostRecentEventCount(event.nativeEvent.eventCount);
     setLastValue(event.nativeEvent.text);
     props.onChangeText(event.nativeEvent.text);
   };
 
   return (
-    <RNAutoCompleteTextView {...rest} dataSource={data} onChange={onChange} />
+    <RNAutoCompleteTextView
+      {...rest}
+      jsEventCount={mostRecentEventCount}
+      dataSource={data}
+      ref={forwardedRef}
+      onChange={onChange}
+    />
   );
 };
 
-var RNAutoCompleteTextView = requireNativeComponent('RNAutoCompleteTextView', AutoCompleteTextView, {
+const RNAutoCompleteTextView: any = requireNativeComponent('RNAutoCompleteTextView', AutoCompleteTextView, {
   nativeOnly: {onChange: true}
-});
+  },
+);
 
-export { AutoCompleteTextView };
+export {AutoCompleteTextView};

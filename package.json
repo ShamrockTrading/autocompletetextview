@@ -1,6 +1,10 @@
 {
   "name": "rn-android-autocompletetextview",
+<<<<<<< HEAD
   "version": "3.0.0",
+=======
+  "version": "2.2.0",
+>>>>>>> 3027562263d541a5de32b435227f042d99c1e067
   "description": "A Native Ui Component of Android",
   "main": "index.js",
   "peerDependencies": {
