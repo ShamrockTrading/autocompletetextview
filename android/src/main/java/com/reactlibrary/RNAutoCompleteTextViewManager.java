@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
-import android.os.Handler;
 import androidx.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -43,7 +42,6 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
     private Context mContext;
     @Nullable
     private String lastInputText;
-    private Handler handler = new Handler();
     @Nullable
     private ArrayList optionList;
     private HashMap optionsMap;
@@ -59,10 +57,6 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
 
     public final void setLastInputText(@Nullable String var1) {
         this.lastInputText = var1;
-    }
-
-    public final Handler getHandler() {
-        return this.handler;
     }
 
     public String getName() {
