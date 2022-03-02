@@ -17,16 +17,7 @@ public final class RNAutoCompleteTextView extends AppCompatAutoCompleteTextView 
     public RNAutoCompleteTextView(Context context) {
         super(context);
         this.setInputType(524288);
-        this.setTextColor(Color.parseColor("#333333"));
-        this.setTextSize(14.0F);
-        float value = 8;
-        Resources resources = context.getResources();
-        int dpValue = (int)TypedValue.applyDimension(1, value, resources.getDisplayMetrics());
-        this.setPadding(0, this.getPaddingTop(), 0, dpValue);
-        LayoutParams layoutParams = new LayoutParams(-1, -2);
-        layoutParams.setMargins(0, 30, 0, 30);
-        this.setLayoutParams((android.view.ViewGroup.LayoutParams)layoutParams);
-        this.getBackground().setTint(Color.parseColor("#d3d3d3"));
+        this.setPadding(0, 12, 0, 15);
         eventCount = 0;
         jsEventCount = 0;
     }

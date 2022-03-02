@@ -7,6 +7,7 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.InputMethodManager;
@@ -82,13 +83,11 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
         WritableMap event = Arguments.createMap();
         ReactContext reactContext = (ReactContext)view.getContext();
         if (focused) {
-            view.getBackground().mutate().setColorFilter(Color.parseColor("#0091EA"), PorterDuff.Mode.SRC_ATOP);
             reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                     view.getId(),
                     "topFocus",
                     event);
         } else {
-            view.getBackground().mutate().setColorFilter(Color.parseColor("#D3D3D3"), PorterDuff.Mode.SRC_ATOP);
             reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                     view.getId(),
                     "topBlur",
@@ -183,6 +182,28 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
             }
         }
 
+    }
+
+    @ReactProp(
+            name = "fontSize"
+    )
+    public void setTextSize(RNAutoCompleteTextView view, @Nullable int value) {
+        view.setTextSize(TypedValue.COMPLEX_UNIT_SP, value);
+    }
+
+    @ReactProp(
+            name = "fontColor"
+    )
+    public void setFontColor(RNAutoCompleteTextView view, @Nullable String value) {
+        view.setTextColor(Color.parseColor(value));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @ReactProp(
+            name = "borderColor"
+    )
+    public void setBorderColor(RNAutoCompleteTextView view, @Nullable String value) {
+        view.getBackground().setTint(Color.parseColor(value));
     }
 
     @Nullable

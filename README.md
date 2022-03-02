@@ -65,6 +65,9 @@ This is a module for accessing **Native Android AutoCompleteTextView.**
           showDropDown={false}
           hint={'My Hint'}
           onItemClick={onDropdownClick}
+          fontSize={14}
+          fontColor={'#000000'}
+          borderColor={'#000000'}
         />
         ...
     }
