@@ -1,8 +1,6 @@
 package com.reactlibrary;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.util.TypedValue;
 import android.widget.LinearLayout.LayoutParams;
 
@@ -14,27 +12,32 @@ import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 public final class RNAutoCompleteTextView extends AppCompatAutoCompleteTextView {
     int eventCount;
     int jsEventCount;
+
     public RNAutoCompleteTextView(Context context) {
         super(context);
         this.setInputType(524288);
-        this.setPadding(0, 12, 0, 15);
+        this.setPadding(0, 0, 0, 0);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(0, 0, 0, 0);
+        this.setLayoutParams(layoutParams);
+        this.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5.0f, getResources().getDisplayMetrics()), 1.25f);
         eventCount = 0;
         jsEventCount = 0;
     }
 
-    public int getAndSetEventCount () {
+    public int getAndSetEventCount() {
         return eventCount++;
     }
 
-    public int getEventCount () {
+    public int getEventCount() {
         return eventCount;
     }
 
-    public int getJSEventCount () {
+    public int getJSEventCount() {
         return jsEventCount;
     }
 
-    public void setJSEventCount (int count) {
+    public void setJSEventCount(int count) {
         jsEventCount = count;
     }
 }
