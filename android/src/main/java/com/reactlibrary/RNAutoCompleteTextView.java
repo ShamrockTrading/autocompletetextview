@@ -12,6 +12,7 @@ import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 public final class RNAutoCompleteTextView extends AppCompatAutoCompleteTextView {
     int eventCount;
     int jsEventCount;
+    String autoCompleteType;
 
     public RNAutoCompleteTextView(Context context) {
         super(context);
@@ -39,5 +40,13 @@ public final class RNAutoCompleteTextView extends AppCompatAutoCompleteTextView 
 
     public void setJSEventCount(int count) {
         jsEventCount = count;
+    }
+
+    public String getAutoCompleteType() {
+        return autoCompleteType;
+    }
+
+    public void setAutoCompleteType(String type) {
+        autoCompleteType = type;
     }
 }

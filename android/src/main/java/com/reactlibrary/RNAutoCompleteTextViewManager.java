@@ -7,6 +7,7 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.json.JSONArray;
@@ -67,6 +69,32 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
         return "RNAutoCompleteTextView";
     }
 
+    public String formatPhoneNumber(String unformattedNumber) {
+        String number = unformattedNumber.replaceAll("[^\\d.]", "");
+        if (number.length() > 10) {
+            number = number.substring(0, 10);
+        }
+        int length = number.length();
+        String formattedNumber = null;
+        String areaCode;
+        String three;
+        String four;
+
+        if (length > 6) {
+            areaCode = number.substring(0, 3);
+            three = number.substring(3, 6);
+            four = number.substring(6, length);
+            formattedNumber = String.format("(%s) %s - %s", areaCode, three, four);
+        } else if (length > 3) {
+            areaCode = number.substring(0, 3);
+            three = number.substring(3, length);
+            formattedNumber = String.format("(%s) %s", areaCode, three);
+        } else if (length > 0) {
+            formattedNumber = String.format("(%s", number);
+        }
+        return formattedNumber;
+    }
+
     @RequiresApi(21)
     protected RNAutoCompleteTextView createViewInstance(ThemedReactContext reactContext) {
         this.mContext = (Context) reactContext;
@@ -77,7 +105,6 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
             }
         }));
         this.textWatcher = new RNAutoCompleteTextViewManager.NativeTextWatcher(reactContext, autocomplete);
-        ;
         autocomplete.addTextChangedListener((TextWatcher) this.textWatcher);
         autocomplete.setThreshold(1);
         return autocomplete;
@@ -103,6 +130,7 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
     @ReactProp(
             name = "dataSource"
     )
+
     public final void setDataSource(RNAutoCompleteTextView view, ReadableMap data) throws JSONException {
         String template = data.getString("itemFormat");
         String listData = data.getString("dataSource");
@@ -130,8 +158,15 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
             this.optionList.add(resolvedString);
             this.optionsMap.put(resolvedString, i);
         }
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this.mContext, layout.simple_spinner_dropdown_item, this.optionList);
-        view.setAdapter(arrayAdapter);
+
+        if (view.getAutoCompleteType() != null && view.getAutoCompleteType().equals("tel")) {
+            ArrayAdapter arrayAdapter = new PhoneAdapter(this.mContext, layout.simple_spinner_dropdown_item, this.optionList);
+            view.setAdapter(arrayAdapter);
+        } else {
+            ArrayAdapter arrayAdapter = new ArrayAdapter(this.mContext, layout.simple_spinner_dropdown_item, this.optionList);
+            view.setAdapter(arrayAdapter);
+        }
+
         view.setOnItemClickListener((OnItemClickListener) (new OnItemClickListener() {
             public final void onItemClick(@Nullable AdapterView parent, View view, int position, long id) {
                 RNAutoCompleteTextViewManager.this.onItemClick(parent, view, position, id);
@@ -186,6 +221,17 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
             }
         }
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @ReactProp(
+            name = "autoCompleteType"
+    )
+    public void setAutoCompleteType(RNAutoCompleteTextView view, @Nullable String type) {
+        view.setAutoCompleteType(type);
+        if (Objects.equals(type, "tel")) {
+            view.setInputType(InputType.TYPE_CLASS_NUMBER);
+        }
     }
 
     @ReactProp(
@@ -253,13 +299,32 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
             if (!inputText.equals(RNAutoCompleteTextViewManager.this.getLastInputText()) && !this.view.isPerformingCompletion()) {
                 RNAutoCompleteTextViewManager.this.setLastInputText(inputText);
                 WritableMap event = Arguments.createMap();
-                event.putString("text", inputText);
+                if (view.getAutoCompleteType() != null && view.getAutoCompleteType().equals("tel")) {
+                    view.removeTextChangedListener(this);
+                    String text = formatPhoneNumber(inputText);
+                    view.setText(text);
+                    if (text != null) view.setSelection(text.length());
+                    view.addTextChangedListener(this);
+                    String cleanPhone = text.replaceAll("[^\\d.]", "");
+                    event.putString("text", cleanPhone);
+                } else {
+                    event.putString("text", inputText);
+                }
                 event.putInt("eventCount", eventCount);
                 ((RCTEventEmitter) this.reactContext.getJSModule(RCTEventEmitter.class)).receiveEvent(this.view.getId(), "topChange", event);
             }
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public void afterTextChanged(Editable editable) {
+            if (view.getAutoCompleteType() != null && view.getAutoCompleteType().equals("tel")) {
+                view.removeTextChangedListener(this);
+                String inputText = editable.toString();
+                String text = formatPhoneNumber(inputText);
+                view.setText(text);
+                if (text != null) view.setSelection(text.length());
+                view.addTextChangedListener(this);
+            }
         }
 
         public NativeTextWatcher(ThemedReactContext reactContext, RNAutoCompleteTextView view) {
