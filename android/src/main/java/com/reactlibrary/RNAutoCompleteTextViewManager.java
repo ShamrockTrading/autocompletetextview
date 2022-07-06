@@ -300,13 +300,20 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
                 RNAutoCompleteTextViewManager.this.setLastInputText(inputText);
                 WritableMap event = Arguments.createMap();
                 if (view.getAutoCompleteType() != null && view.getAutoCompleteType().equals("tel")) {
-                    view.removeTextChangedListener(this);
-                    String text = formatPhoneNumber(inputText);
-                    view.setText(text);
-                    if (text != null) view.setSelection(text.length());
-                    view.addTextChangedListener(this);
-                    String cleanPhone = text.replaceAll("[^\\d.]", "");
-                    event.putString("text", cleanPhone);
+                    try {
+                        view.removeTextChangedListener(this);
+                        String text = formatPhoneNumber(inputText);
+                        view.setText(text);
+                        if (text != null)
+                            view.setSelection(text.length());
+                        view.addTextChangedListener(this);
+                        String cleanPhone = inputText;
+                        if (text != null)
+                            cleanPhone = text.replaceAll("[^\\d.]", "");
+                        event.putString("text", cleanPhone);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
                 } else {
                     event.putString("text", inputText);
                 }
