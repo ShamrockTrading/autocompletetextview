@@ -2,7 +2,11 @@ package com.reactlibrary;
 
 import android.content.Context;
 import android.util.TypedValue;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -14,7 +18,7 @@ public final class RNAutoCompleteTextView extends AppCompatAutoCompleteTextView 
     int jsEventCount;
     String autoCompleteType;
 
-    public RNAutoCompleteTextView(Context context) {
+    public RNAutoCompleteTextView(final Context context) {
         super(context);
         this.setInputType(524288);
         this.setPadding(0, 0, 0, 0);
@@ -24,6 +28,19 @@ public final class RNAutoCompleteTextView extends AppCompatAutoCompleteTextView 
         this.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5.0f, getResources().getDisplayMetrics()), 1.25f);
         eventCount = 0;
         jsEventCount = 0;
+
+        this.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                    InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    handled = true;
+                }
+                return handled;
+            }
+        });
     }
 
     public int getAndSetEventCount() {

@@ -314,6 +314,14 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
                     } catch (Exception e) {
                         System.out.println(e);
                     }
+                } else if (view.getAutoCompleteType() != null && view.getAutoCompleteType().equals("name")) {
+                    view.removeTextChangedListener(this);
+                    String cleanName = inputText.replaceAll("[^A-Za-z ']", "");
+                    view.setText(cleanName);
+                    if (cleanName != null)
+                        view.setSelection(cleanName.length());
+                    view.addTextChangedListener(this);
+                    event.putString("text", cleanName);
                 } else {
                     event.putString("text", inputText);
                 }
@@ -330,6 +338,15 @@ public final class RNAutoCompleteTextViewManager extends SimpleViewManager<RNAut
                 String text = formatPhoneNumber(inputText);
                 view.setText(text);
                 if (text != null) view.setSelection(text.length());
+                view.addTextChangedListener(this);
+            }
+
+            if (view.getAutoCompleteType() != null && view.getAutoCompleteType().equals("name")) {
+                view.removeTextChangedListener(this);
+                String cleanName = editable.toString().replaceAll("[^A-Za-z ']", "");
+                view.setText(cleanName);
+                if (cleanName != null)
+                    view.setSelection(cleanName.length());
                 view.addTextChangedListener(this);
             }
         }
